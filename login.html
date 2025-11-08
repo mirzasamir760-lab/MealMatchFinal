@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login | Meal Match</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .auth-wrapper { max-width: 450px; margin: 60px auto; background: #fff; padding: 40px; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.16); border: 1px solid rgba(0,0,0,0.05); }
+    .auth-tabs { display: flex; margin-bottom: 30px; background: #f5f5f5; border-radius: 12px; padding: 6px; gap: 6px; }
+    .auth-tab { flex: 1; text-align: center; padding: 14px; cursor: pointer; border-radius: 10px; font-weight: 600; color: #7f8c8d; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); font-size: 1rem; }
+    .auth-tab.active { background: linear-gradient(135deg, #ff6f61 0%, #ff8a7f 100%); color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .auth-tab:not(.active):hover { background: rgba(255,111,97,0.1); color: #ff6f61; }
+    .error { color: #d32f2f; font-size: 0.9rem; min-height: 1.2em; margin-top: -8px; margin-bottom: 8px; padding: 8px 12px; background: #ffebee; border-radius: 8px; border-left: 3px solid #d32f2f; }
+    .success { color: #2e7d32; font-size: 0.95rem; margin-top: 12px; padding: 12px; background: #e8f5e9; border-radius: 8px; border-left: 3px solid #2e7d32; }
+    .hint { font-size: 0.9rem; color: #7f8c8d; margin-top: 12px; text-align: center; }
+    .link { color: #ff6f61; text-decoration: none; font-weight: 600; }
+  </style>
+  <script>
+    function setActiveTab(mode) {
+      var loginTab = document.getElementById('tab-login');
+      var signupTab = document.getElementById('tab-signup');
+      var loginForm = document.getElementById('form-login');
+      var signupForm = document.getElementById('form-signup');
+
+      if (mode === 'login') {
+        loginTab.classList.add('active');
+        signupTab.classList.remove('active');
+        loginForm.style.display = 'block';
+        signupForm.style.display = 'none';
+      } else {
+        signupTab.classList.add('active');
+        loginTab.classList.remove('active');
+        signupForm.style.display = 'block';
+        loginForm.style.display = 'none';
+      }
+    }
+
+    function saveUser(user) {
+      localStorage.setItem('mm_user', JSON.stringify(user));
+    }
+
+    function getUser() {
+      try { return JSON.parse(localStorage.getItem('mm_user') || 'null'); } catch(e) { return null; }
+    }
+
+    function onReady() {
+      var existing = getUser();
+      if (existing && existing.email) {
+        window.location.href = 'index.html';
+        return;
+      }
+
+      setActiveTab('login');
+
+      // Login submit
+      document.getElementById('form-login').addEventListener('submit', function(e) {
+        e.preventDefault();
+        var email = document.getElementById('login-email').value.trim();
+        var password = document.getElementById('login-password').value;
+        var error = document.getElementById('login-error');
+        error.textContent = '';
+
+        if (!email || !password) { error.textContent = 'Please enter email and password.'; return; }
+        // Demo flow: accept any non-empty credentials
+        saveUser({ email: email, name: email.split('@')[0] });
+        window.location.href = 'index.html';
+      });
+
+      // Signup submit
+      document.getElementById('form-signup').addEventListener('submit', function(e) {
+        e.preventDefault();
+        var name = document.getElementById('signup-name').value.trim();
+        var email = document.getElementById('signup-email').value.trim();
+        var password = document.getElementById('signup-password').value;
+        var confirm = document.getElementById('signup-confirm').value;
+        var error = document.getElementById('signup-error');
+        var success = document.getElementById('signup-success');
+        error.textContent = '';
+        success.textContent = '';
+
+        if (!name || !email || !password) { error.textContent = 'All fields are required.'; return; }
+        if (password.length < 6) { error.textContent = 'Password must be at least 6 characters.'; return; }
+        if (password !== confirm) { error.textContent = 'Passwords do not match.'; return; }
+
+        // Demo: "create" account client-side and log in
+        saveUser({ email: email, name: name });
+        success.textContent = 'Account created. Redirecting...';
+        setTimeout(function(){ window.location.href = 'index.html'; }, 800);
+      });
+
+      // Tabs
+      document.getElementById('tab-login').addEventListener('click', function(){ setActiveTab('login'); });
+      document.getElementById('tab-signup').addEventListener('click', function(){ setActiveTab('signup'); });
+    }
+
+    document.addEventListener('DOMContentLoaded', onReady);
+  </script>
+</head>
+<body>
+
+  <header>
+    <div class="container" style="position: relative;">
+      <h1>Meal Match</h1>
+      <nav>
+        <a href="./index.html">Home</a>
+        <a href="./res.html">Restaurants</a>
+        <a href="./about.html">About us</a>
+        <a href="./contact.html">Contact</a>
+        <a href="./login.html" class="login-btn">Login/Register</a>
+      </nav>
+      
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="container">
+      <h2>Welcome back</h2>
+      <p>Log in or create your Meal Match account</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="container">
+      <div class="auth-wrapper">
+        <div class="auth-tabs">
+          <div id="tab-login" class="auth-tab active">Login</div>
+          <div id="tab-signup" class="auth-tab">Sign Up</div>
+        </div>
+
+        <form id="form-login" style="display: block;">
+          <input id="login-email" type="email" placeholder="Email" required />
+          <input id="login-password" type="password" placeholder="Password" required />
+          <div id="login-error" class="error"></div>
+          <button type="submit">Login</button>
+          <div class="hint">Demo: any email and password will log in.</div>
+        </form>
+
+        <form id="form-signup" style="display: none;">
+          <input id="signup-name" type="text" placeholder="Full name" required />
+          <input id="signup-email" type="email" placeholder="Email" required />
+          <input id="signup-password" type="password" placeholder="Password (min 6 chars)" required />
+          <input id="signup-confirm" type="password" placeholder="Confirm password" required />
+          <div id="signup-error" class="error"></div>
+          <button type="submit">Create account</button>
+          <div id="signup-success" class="success"></div>
+        </form>
+
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container">
+      <p>&copy; 2025 Meal Match. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="auth.js"></script>
+</body>
+</html>
+
+

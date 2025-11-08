@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Restaurants | Meal Match</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+
+  <header>
+    <div class="container" style="position: relative;">
+      <h1>Meal Match</h1>
+      <nav>
+        <a href="./index.html">Home</a>
+        <a href="./res.html">Restaurants</a>
+        <a href="./about.html">About us</a>
+        <a href="./contact.html">Contact</a>
+        <a href="./login.html" class="login-btn">Login/Register</a>
+      </nav>
+      
+    </div>
+  </header>
+
+ 
+  <section class="hero" style="padding: 80px 20px; height: 300px; background: url('food.jpg') no-repeat center center/cover;">
+    <h2>Find Your Favorite Meal</h2>
+    <p>Search restaurants by Area, Cuisine or Price!</p>
+  </section>
+
+
+  <section style="padding: 40px 20px; background-color: #fff; text-align: center;">
+    <div class="container">
+      <input type="text" placeholder="Search restaurants..." style="padding: 14px 20px; width: 60%; max-width: 500px; border-radius: 12px; border: 2px solid rgba(0,0,0,0.1); margin-bottom: 25px; font-size: 1rem; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.05);" onfocus="this.style.borderColor='#ff6f61'; this.style.boxShadow='0 0 0 4px rgba(255,111,97,0.1)'" onblur="this.style.borderColor='rgba(0,0,0,0.1)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.05)'">
+      
+      <div style="display: flex; justify-content: center; flex-wrap: wrap; gap: 15px; margin-top: 15px;">
+        <select style="padding: 14px 20px; border-radius: 12px; border: 2px solid rgba(0,0,0,0.1); font-size: 1rem; background: white; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.05);" onfocus="this.style.borderColor='#ff6f61'; this.style.boxShadow='0 0 0 4px rgba(255,111,97,0.1)'" onblur="this.style.borderColor='rgba(0,0,0,0.1)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.05)'">
+          <option>All Areas</option>
+          <option>Mochigahama</option>
+          <option>Kamegawa</option>
+          <option>Minamisuga</option>
+        </select>
+        <select style="padding: 14px 20px; border-radius: 12px; border: 2px solid rgba(0,0,0,0.1); font-size: 1rem; background: white; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.05);" onfocus="this.style.borderColor='#ff6f61'; this.style.boxShadow='0 0 0 4px rgba(255,111,97,0.1)'" onblur="this.style.borderColor='rgba(0,0,0,0.1)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.05)'">
+          <option>All Cuisines</option>
+          <option>Japanese</option>
+          <option>Chinese</option>
+          <option>Italian</option>
+          <option>Halal</option>
+        </select>
+        <select style="padding: 14px 20px; border-radius: 12px; border: 2px solid rgba(0,0,0,0.1); font-size: 1rem; background: white; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.05);" onfocus="this.style.borderColor='#ff6f61'; this.style.boxShadow='0 0 0 4px rgba(255,111,97,0.1)'" onblur="this.style.borderColor='rgba(0,0,0,0.1)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.05)'">
+          <option>All Prices</option>
+          <option>¥</option>
+          <option>¥¥</option>
+          <option>¥¥¥</option>
+        </select>
+      </div>
+    </div>
+  </section>
+  <section id="restaurants" style="padding: 60px 20px; background-color: #f4f4f4; text-align: center;">
+    <div class="container">
+      <h2 style="color: #ff6f61; margin-bottom: 40px;">Restaurants Near You</h2>
+      <div  class="service-boxes" style="justify-content: center; gap: 20px; flex-wrap: wrap;">
+        <div class="box" style="max-width: 300px;">
+          <div style="background-color: #ffffff; height: 150px; border-radius: 15px; margin-bottom: 15px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+            <a href='./lawson.html'><img src="lawson.jpg" alt="Lawson" style="max-width: 100%; max-height: 100%; object-fit: contain;"></a>
+          </div>
+          <h3>Lawson</h3>
+          <p>Area: Kamegawa | Type: Conbini | Upto 50% discount available!</p>
+        </div>
+        <div class="box" style="max-width: 300px;">
+          <div style="background-color: #ffffff; height: 150px; border-radius: 15px; margin-bottom: 15px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+            <a href='./Gyomu.html'><img src="gyomu.jpg" alt="gyomu" style="max-width: 100%; max-height: 100%; object-fit: contain;"></a>
+           
+          </div>
+          <h3>Gyomu</h3>
+          <p>Area: Mochigahama | Type: Super market | Upto 30% discount available!</p>
+        </div>
+        <div class="box" style="max-width: 300px;">
+          <div style="background-color: #ffffff; height: 150px; border-radius: 15px; margin-bottom: 15px; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+            <a href='./marushoku.html'><img src="maru.jpg" alt="Marushoku" style="max-width: 100%; max-height: 100%; object-fit: contain;"></a>
+          
+          </div>
+          <h3>Marushoku</h3>
+          <p>Area: Minamisuga | Type: Super market | Upto 25% discount available!</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+ 
+  <footer>
+    <div class="container">
+      <p>&copy; 2025 Meal Match. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="auth.js"></script>
+  
+
+
+
+</body>
+</html>

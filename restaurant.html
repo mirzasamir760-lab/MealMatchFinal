@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Restaurant</title>
+  <link rel="stylesheet" href="style1.css">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+  <style>
+    .dyn-logo { width: 80px; height: 80px; border-radius: 8px; object-fit: cover; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-container">
+      <img id="dynLogo" src="" alt="Logo" class="logo dyn-logo" />
+      <h1 id="dynTitle">Restaurant</h1>
+      <nav>
+        <a href="res.html">← Back to Restaurant</a>
+      </nav>
+    </div>
+  </header>
+
+  <section id="menu">
+    <h2>Menu</h2>
+    <input id="dynSearch" type="text" placeholder="Search your meal..." style="padding: 14px 20px; width: 60%; max-width: 500px; border-radius: 12px; border: 2px solid rgba(0,0,0,0.1); margin-bottom: 25px; font-size: 1rem; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.05);" onfocus="this.style.borderColor='#ff6f61'; this.style.boxShadow='0 0 0 4px rgba(255,111,97,0.1)'" onblur="this.style.borderColor='rgba(0,0,0,0.1)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.05)'">
+    <div id="dynMenuList" class="menu-list"></div>
+  </section>
+
+  <footer>
+    <p>&copy; 2025 Meal Match. All Rights Reserved.</p>
+  </footer>
+
+  <script>
+    (function(){
+      function getStorage(key, def){ try { var v=localStorage.getItem(key); return v?JSON.parse(v):def; } catch(e){ return def; } }
+      function qs(name){ var m=location.search.match(new RegExp('[?&]'+name+'=([^&]+)')); return m?decodeURIComponent(m[1]):null; }
+      function renderMenu(items){
+        var wrap=document.getElementById('dynMenuList');
+        wrap.innerHTML='';
+        if(!items.length){ wrap.innerHTML='<div style="color:#666;">No items yet.</div>'; return; }
+        items.forEach(function(it){
+          var item=document.createElement('div'); item.className='menu-item';
+          var img=document.createElement('img'); img.src=it.image_url||'food2.jpg'; img.alt=it.name;
+          var details=document.createElement('div'); details.className='menu-details';
+          var h3=document.createElement('h3'); h3.textContent=it.name;
+          var p=document.createElement('p'); p.className='price'; 
+          var priceText='¥'+(it.price||0);
+          if(it.old_price && it.old_price > it.price){
+            var discount=Math.round(((it.old_price-it.price)/it.old_price)*100);
+            priceText+=' <span class="old-price">¥'+(it.old_price||0)+'</span>';
+            var discountEl=document.createElement('p'); discountEl.className='discount'; discountEl.textContent=discount+'% Off';
+            details.appendChild(discountEl);
+          }
+          p.innerHTML=priceText;
+          var btn=document.createElement('button'); btn.className='add-btn'; btn.textContent='ADD';
+          
+          // Add event listener for ADD button
+          btn.addEventListener('click', function(){
+            // Check if user is logged in (using functions from auth.js)
+            if(typeof getCurrentUser === 'function'){
+              var user=getCurrentUser();
+              if(!user){
+                window.location.href='login.html';
+                return;
+              }
+            }
+            
+            // Use same cart key format as initOrdering() would use for restaurant.html
+            var CART_KEY='mm_cart_restaurant.html';
+            function getCart(){
+              try{
+                var val=localStorage.getItem(CART_KEY);
+                return val?JSON.parse(val):[];
+              }catch(e){ return []; }
+            }
+            function setCart(items){
+              try{
+                localStorage.setItem(CART_KEY,JSON.stringify(items));
+              }catch(e){}
+            }
+            
+            // Add item to cart
+            var cart=getCart();
+            var existingItem=cart.find(function(ci){ return String(ci.id)===String(it.id); });
+            if(existingItem){
+              existingItem.quantity+=1;
+            }else{
+              var cartItem={
+                id:it.id,
+                name:it.name,
+                price:it.price||0,
+                quantity:1,
+                old_price:it.old_price||null,
+                image_url:it.image_url||null,
+                restaurant_id:rid
+              };
+              cart.push(cartItem);
+            }
+            setCart(cart);
+            
+            // Update or create cart button immediately
+            var cartBtn=document.querySelector('button[style*="position:fixed"][style*="right:20px"]');
+            var count=cart.reduce(function(sum,ci){ return sum+(ci.quantity||1); },0);
+            
+            if(cartBtn){
+              // Update existing button
+              cartBtn.textContent='View Cart ('+count+')';
+              cartBtn.style.display=count>0?'block':'none';
+            } else {
+              // Create button immediately if it doesn't exist
+              cartBtn=document.createElement('button');
+              cartBtn.textContent='View Cart ('+count+')';
+              cartBtn.style.cssText='position:fixed;right:20px;bottom:20px;background:#ff6f61;color:#fff;border:none;border-radius:24px;padding:12px 16px;box-shadow:0 6px 16px rgba(0,0,0,0.2);cursor:pointer;z-index:1000;display:'+(count>0?'block':'none')+';';
+              document.body.appendChild(cartBtn);
+              
+              // Attach a temporary click handler that will show the cart
+              // initOrdering will replace this with its own handler when it runs
+              cartBtn.addEventListener('click', function(e){
+                e.preventDefault();
+                e.stopPropagation();
+                // Ensure initOrdering has run to set up the cart modal
+                if(typeof initOrdering === 'function'){
+                  initOrdering();
+                  // After initOrdering runs, it will have set up showCartModal
+                  // We need to trigger it manually since the handler was just replaced
+                  setTimeout(function(){
+                    // Try to find the cart button again and trigger its click
+                    // Or directly call showCartModal if it's available
+                    var updatedCartBtn = document.querySelector('button[style*="position:fixed"][style*="right:20px"]');
+                    if(updatedCartBtn){
+                      // The button should now have the proper handler from initOrdering
+                      // Trigger it
+                      updatedCartBtn.click();
+                    }
+                  }, 100);
+                }
+              });
+            }
+            
+            // Visual feedback
+            btn.textContent='ADDED';
+            setTimeout(function(){ btn.textContent='ADD'; },800);
+          });
+          
+          details.appendChild(h3); details.appendChild(p); details.appendChild(btn);
+          item.appendChild(img); item.appendChild(details);
+          wrap.appendChild(item);
+        });
+        
+        // Update cart button after rendering
+        // initOrdering will handle the cart button setup
+        // Just ensure it runs after menu is loaded
+      }
+      function filterAndRender(all){
+        var q=(document.getElementById('dynSearch').value||'').toLowerCase();
+        var filtered = all.filter(function(i){ return !q || (i.name||'').toLowerCase().indexOf(q)>=0; });
+        renderMenu(filtered);
+      }
+      var rid=qs('rid');
+      if(!rid){
+        document.getElementById('dynTitle').textContent='Restaurant Not Found';
+        document.getElementById('dynMenuList').innerHTML='<div style="color:#666;">Invalid restaurant ID.</div>';
+        return;
+      }
+      
+      // Fetch restaurant data from API
+      fetch('/api/restaurants')
+        .then(function(res){ return res.json(); })
+        .then(function(data){
+          var restaurants = data.restaurants || [];
+          var r = restaurants.find(function(x){ return String(x.id) === String(rid); });
+          
+          // Fallback to localStorage if not found in API
+          if(!r){
+            var localRestaurants = getStorage('mm_restaurants',[]);
+            r = localRestaurants.find(function(x){ return String(x.id) === String(rid); });
+          }
+          
+          if(r){
+            document.getElementById('dynTitle').textContent=r.name||'Restaurant';
+            var logo=document.getElementById('dynLogo');
+            logo.src=r.image_url||'food.jpg';
+            logo.alt=r.name||'Logo';
+          } else {
+            document.getElementById('dynTitle').textContent='Restaurant Not Found';
+          }
+        })
+        .catch(function(err){
+          console.error('Error fetching restaurant:', err);
+          // Fallback to localStorage
+          var restaurants=getStorage('mm_restaurants',[]);
+          var r=restaurants.find(function(x){return String(x.id)===String(rid);});
+          if(r){
+            document.getElementById('dynTitle').textContent=r.name||'Restaurant';
+            var logo=document.getElementById('dynLogo');
+            logo.src=r.image_url||'food.jpg';
+            logo.alt=r.name||'Logo';
+          }
+        });
+      
+      // Fetch menu items from API
+      fetch('/api/menu/' + encodeURIComponent(rid))
+        .then(function(res){ return res.json(); })
+        .then(function(data){
+          var allItems = data.items || [];
+          
+          // Store menu items from API in localStorage so owner dashboard can find them
+          if(allItems.length){
+            var localItems = getStorage('mm_menu_items',[]);
+            // Update or add menu items from API
+            allItems.forEach(function(apiItem){
+              var existingIndex = localItems.findIndex(function(li){ return String(li.id) === String(apiItem.id); });
+              if(existingIndex >= 0){
+                // Update existing item
+                localItems[existingIndex] = apiItem;
+              } else {
+                // Add new item
+                localItems.push(apiItem);
+              }
+            });
+            try{
+              localStorage.setItem('mm_menu_items', JSON.stringify(localItems));
+            }catch(e){}
+          }
+          
+          // Fallback to localStorage if no items from API
+          if(!allItems.length){
+            var localItems = getStorage('mm_menu_items',[]);
+            allItems = localItems.filter(function(i){ return String(i.restaurant_id) === String(rid); });
+          }
+          
+          document.getElementById('dynSearch').addEventListener('input', function(){ filterAndRender(allItems); });
+          filterAndRender(allItems);
+          
+          // Re-initialize ordering after menu items are loaded
+          // This ensures the cart button and cart modal are set up
+          // Use setTimeout to ensure DOM is ready
+          setTimeout(function(){
+            if(typeof initOrdering === 'function'){
+              initOrdering();
+            }
+          }, 100);
+        })
+        .catch(function(err){
+          console.error('Error fetching menu:', err);
+          // Fallback to localStorage
+          var allItems=getStorage('mm_menu_items',[]).filter(function(i){ return String(i.restaurant_id)===String(rid); });
+          document.getElementById('dynSearch').addEventListener('input', function(){ filterAndRender(allItems); });
+          filterAndRender(allItems);
+          
+          // Re-initialize ordering after menu items are loaded
+          if(typeof initOrdering === 'function'){
+            initOrdering();
+          }
+        });
+    })();
+  </script>
+  <script src="auth.js"></script>
+</body>
+</html>
+
+
+
+
+
